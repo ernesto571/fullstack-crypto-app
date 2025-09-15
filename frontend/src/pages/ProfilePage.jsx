@@ -19,9 +19,9 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="h-screen pt-20 bg-gray-100">
+    <div className="max-h-[1000px] pt-20 bg-gray-100">
       <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="bg-white rounded-xl p-6 mb-[80px] space-y-8 shadow">
+        <div className="bg-white rounded-xl p-6 mb-[80px] md:mb-0 lg:md-0  space-y-8 shadow">
           {/* header */}
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-gray-800">Profile</h1>

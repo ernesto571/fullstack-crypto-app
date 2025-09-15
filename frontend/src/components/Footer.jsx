@@ -9,7 +9,7 @@ function Footer(){
     }
 
     return(
-        <div className="max-w-[94%] ml-[3%] mt-8 mb-[70px]">
+        <div className="max-w-[94%] ml-[3%] mt-8 mb-[60px] md:mb-0 lg:md-0 ">
             <div className="border-t-[1px] border-b-[1px] border-solid border-[#eff2f5] block  lg:flex pt-5 pb-5 justify-between">
                 <div className="w-[100%] text-[0.9rem] md:text-base lg:textbase">
                     <p className="text-gray-700 mt-4.5 font-semibold mb-2.5 ">Interested to stay up-to-date with cryptocurrencies?</p>

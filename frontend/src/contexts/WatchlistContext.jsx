@@ -40,7 +40,6 @@ export const WatchlistProvider = ({ children }) => {
         { withCredentials: true }
       );
       
-      toast.success("Added to watchlist")
       console.log("Added to watchlist:", data);
       setWatchlist(data); // Update with full watchlist from server
     } catch (error) {
