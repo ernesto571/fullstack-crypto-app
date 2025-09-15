@@ -151,7 +151,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
     setLoading(true);
     
     try {
-      const { data } = await axios.post('http://localhost:5001/api/portfolio/transaction', {
+      const { data } = await axios.post('https://fullstack-crypto-app.onrender.com/api/portfolio/transaction', {
         coinId: formData.coinId,
         coinName: formData.coinName,
         coinSymbol: formData.coinSymbol,
