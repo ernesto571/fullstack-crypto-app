@@ -76,22 +76,27 @@ const PortfolioPage = () => {
       const updatedHoldings = holdings.map(h => {
         const coinPriceObj = priceData[h.coinId];
         if (!coinPriceObj) return h;
-
+      
         const currentPrice = typeof coinPriceObj.usd === 'number' ? coinPriceObj.usd : parseFloat(coinPriceObj.usd);
         const dayChangePercent = typeof coinPriceObj.usd_24h_change === 'number' ? coinPriceObj.usd_24h_change : parseFloat(coinPriceObj.usd_24h_change || 0);
         const totalQty = parseFloat(h.totalQuantity || 0);
         const currentValue = Number((currentPrice * totalQty) || 0);
         const dayChange = Number((currentValue * (dayChangePercent / 100)) || 0);
-
+      
+        const pnl = currentValue - h.totalCostBasis;
+        const pnlPercentage = h.totalCostBasis > 0 ? (pnl / h.totalCostBasis) * 100 : 0;
+      
         return {
           ...h,
           currentPrice,
           currentValue,
+          pnl,
+          pnlPercentage,
           dayChange,
           dayChangePercentage: dayChangePercent
         };
       });
-
+      
       setPortfolio(prev => ({ ...prev, holdings: updatedHoldings }));
     } catch (error) {
       console.error('Failed to fetch market prices:', error);

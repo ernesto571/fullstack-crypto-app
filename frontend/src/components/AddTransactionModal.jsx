@@ -293,7 +293,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Price Per Coin (USD) <span className="text-red-500">*</span>
             </label>
-            <div className="block lg:flex md:flex md:gap-2 lg:gap-2">
+            <div className="block lg:flex md:flex gap-2 ">
               <input
                 type="number"
                 step="any"
