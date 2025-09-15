@@ -1,15 +1,28 @@
-// services/Api.js
-import { axiosInstance } from "../lib/axios.js"; // make sure axiosInstance has withCredentials: true
+// Add these functions to your existing services/Api.js file
+
+const API_BASE_URL = 'https://fullstack-crypto-app.onrender.com/api';
 
 // Portfolio API functions
 export const portfolioApi = {
   // Get portfolio summary and holdings
   getPortfolio: async () => {
     try {
-      const { data } = await axiosInstance.get("/portfolio");
-      return data;
+      const response = await fetch(`${API_BASE_URL}/portfolio`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch portfolio');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error fetching portfolio:", error.response?.data || error.message);
+      console.error('Error fetching portfolio:', error);
       throw error;
     }
   },
@@ -17,10 +30,23 @@ export const portfolioApi = {
   // Add a new transaction
   addTransaction: async (transactionData) => {
     try {
-      const { data } = await axiosInstance.post("/portfolio/transaction", transactionData);
-      return data;
+      const response = await fetch(`${API_BASE_URL}/portfolio/transaction`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transactionData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add transaction');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error adding transaction:", error.response?.data || error.message);
+      console.error('Error adding transaction:', error);
       throw error;
     }
   },
@@ -28,13 +54,31 @@ export const portfolioApi = {
   // Get all transactions with pagination
   getTransactions: async (page = 1, limit = 50, coinId = null) => {
     try {
-      const params = { page, limit };
-      if (coinId) params.coinId = coinId;
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+      });
 
-      const { data } = await axiosInstance.get("/portfolio/transactions", { params });
-      return data;
+      if (coinId) {
+        params.append('coinId', coinId);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/portfolio/transactions?${params}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch transactions');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error fetching transactions:", error.response?.data || error.message);
+      console.error('Error fetching transactions:', error);
       throw error;
     }
   },
@@ -42,10 +86,23 @@ export const portfolioApi = {
   // Update a transaction
   updateTransaction: async (transactionId, updateData) => {
     try {
-      const { data } = await axiosInstance.put(`/portfolio/transaction/${transactionId}`, updateData);
-      return data;
+      const response = await fetch(`${API_BASE_URL}/portfolio/transaction/${transactionId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update transaction');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error updating transaction:", error.response?.data || error.message);
+      console.error('Error updating transaction:', error);
       throw error;
     }
   },
@@ -53,16 +110,28 @@ export const portfolioApi = {
   // Delete a transaction
   deleteTransaction: async (transactionId) => {
     try {
-      const { data } = await axiosInstance.delete(`/portfolio/transaction/${transactionId}`);
-      return data;
+      const response = await fetch(`${API_BASE_URL}/portfolio/transaction/${transactionId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete transaction');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error("Error deleting transaction:", error.response?.data || error.message);
+      console.error('Error deleting transaction:', error);
       throw error;
     }
   }
 };
 
-// Optional: individual named exports
+// Alternative: Individual named exports (use either this OR the object above)
 export const getPortfolio = portfolioApi.getPortfolio;
 export const addTransaction = portfolioApi.addTransaction;
 export const getTransactions = portfolioApi.getTransactions;

@@ -74,7 +74,7 @@ const EditTransactionModal = ({ isOpen, onClose, transaction, onSuccess }) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5001/api/portfolio/transaction/${transaction._id}`,
+        `https://fullstack-crypto-app.onrender.com/api/portfolio/transaction/${transaction._id}`,
         {
           method: "PUT",
           credentials: "include",
