@@ -69,7 +69,7 @@ function CoinCard() {
             <tr className="text-gray-800 font-light border-t border-b border-[#eff2f5] text-[0.9rem]">
               <th className="px-3 py-2 text-center">{""}</th>
               <th className="px-3 md:px-7 lg:px-7 py-2 text-left">#</th>
-              <th className="px-3 py-2 text-left sticky left-0">Coin</th>
+              <th className="px-3 py-2 text-left sticky left-0 z-50">Coin</th>
               <th className="px-3 py-2 text-left">Price</th>
               <th className="px-7 py-2 text-left">24h</th>
               <th className="px-7 py-2 text-left">ATH</th>
@@ -123,7 +123,7 @@ function CoinCard() {
                         alt={coin.name}
                         className="w-[30px] mr-3"
                       />
-                      <div className="mr-3 block md:flex lg:flex text-[0.9rem] ">
+                      <div className="mr-3 block md:flex lg:flex text-[0.9rem] sticky left-0 z-50">
                       <p className="lg:mr-2 md:mr-1 mr-4 font-bold truncate max-w-[120px] sm:max-w-[180px]">
                         {coin.name}
                       </p>

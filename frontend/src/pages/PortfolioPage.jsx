@@ -41,7 +41,7 @@ const PortfolioPage = () => {
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5001/api/portfolio', {
+      const response = await fetch('https://fullstack-crypto-app.onrender.com/api/portfolio', {
         method: 'GET',
         credentials: 'include', // Include cookies
         headers: {
