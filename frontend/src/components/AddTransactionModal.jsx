@@ -182,7 +182,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
+        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 p-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900">Add Transaction</h2>
             <button 
