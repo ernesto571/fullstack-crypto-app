@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, BarChart3, Settings, User, Newspaper, Star, Briefcase, LayoutDashboardIcon } from "lucide-react";
+import { LogOut, BarChart3,  User, Newspaper, Star, Briefcase, LayoutDashboardIcon } from "lucide-react";
 
 const Navbar = () => {
   const { logout, authUser } = useAuthStore();
