@@ -58,7 +58,7 @@ function WatchlistPage() {
 
   if (watchlist.length === 0) {
     return (
-      <div className=" mt-[69px]">
+      <div className=" mt-[49px]">
         <Header/>
         <div className="text-center justify-items-center pt-[131px] pb-[200px]">
           <p className="text-gray-500 text-lg mb-4">Your watchlist is empty</p>
