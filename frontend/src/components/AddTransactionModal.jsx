@@ -3,6 +3,8 @@ import { X, Search } from 'lucide-react';
 import { searchCoins } from '../services/Api';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { axiosInstance } from '../lib/axios';
+
 
 function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null }) {
   const [formData, setFormData] = useState({
@@ -151,7 +153,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
     setLoading(true);
     
     try {
-      const { data } = await axios.post('https://fullstack-crypto-app.onrender.com/api/portfolio/transaction', {
+      const { data } = await axiosInstance.post('/portfolio/transaction', {
         coinId: formData.coinId,
         coinName: formData.coinName,
         coinSymbol: formData.coinSymbol,
@@ -291,7 +293,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Price Per Coin (USD) <span className="text-red-500">*</span>
             </label>
-            <div className="block lg:flex md:flex gap-2">
+            <div className="block lg:flex md:flex md:gap-2 lg:gap-2">
               <input
                 type="number"
                 step="any"

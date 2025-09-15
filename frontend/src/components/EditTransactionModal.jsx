@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { axiosInstance } from "../lib/axios";
 
 const EditTransactionModal = ({ isOpen, onClose, transaction, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -11,12 +12,11 @@ const EditTransactionModal = ({ isOpen, onClose, transaction, onSuccess }) => {
     quantity: "",
     price: "",
     date: "",
-    type: "buy"
+    type: "buy",
   });
   const [loading, setLoading] = useState(false);
   const [useMarketPrice, setUseMarketPrice] = useState(false);
 
-  // Pre-fill form when transaction changes
   useEffect(() => {
     if (transaction) {
       setFormData({
@@ -27,7 +27,7 @@ const EditTransactionModal = ({ isOpen, onClose, transaction, onSuccess }) => {
         quantity: transaction.totalQuantity || "",
         price: transaction.avgCost || "",
         date: transaction.date ? transaction.date.split("T")[0] : "",
-        type: transaction.type || "buy"
+        type: transaction.type || "buy",
       });
     }
   }, [transaction]);
@@ -73,27 +73,26 @@ const EditTransactionModal = ({ isOpen, onClose, transaction, onSuccess }) => {
 
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://fullstack-crypto-app.onrender.com/api/portfolio/transaction/${transaction._id}`,
+
+      await axiosInstance.put(
+        `/portfolio/transaction/${transaction._id}`,
         {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(formData)
+          coinId: formData.coinId,
+          coinName: formData.coinName,
+          coinSymbol: formData.coinSymbol,
+          coinImage: formData.coinImage,
+          quantity: parseFloat(formData.quantity),
+          pricePerCoin: parseFloat(formData.price),
+          date: formData.date,
+          type: formData.type,
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to update transaction");
-      }
 
       toast.success("Transaction updated successfully");
       onSuccess();
     } catch (error) {
-      console.error("Error updating transaction:", error);
-      toast.error("Failed to update transaction");
+      console.error("Error updating transaction:", error.response?.data || error.message);
+      toast.error(error.response?.data?.error || "Failed to update transaction");
     } finally {
       setLoading(false);
     }

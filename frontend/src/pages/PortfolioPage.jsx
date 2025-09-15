@@ -18,6 +18,7 @@ import EditTransactionModal from '../components/EditTransactionModal';
 import toast from 'react-hot-toast';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import { axiosInstance } from '../lib/axios';
 
 const PortfolioPage = () => {
   const [showValues, setShowValues] = useState(true);
@@ -41,33 +42,20 @@ const PortfolioPage = () => {
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://fullstack-crypto-app.onrender.com/api/portfolio', {
-        method: 'GET',
-        credentials: 'include', // Include cookies
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch portfolio');
-      }
-
-      const data = await response.json();
-      // set portfolio first
+      const { data } = await axiosInstance.get("/portfolio");
       setPortfolio(data);
-
-      // then fetch market prices for holdings (if any)
+  
       if (data.holdings && data.holdings.length > 0) {
         fetchCurrentMarketPrices(data.holdings);
       }
     } catch (error) {
-      console.error('Error fetching portfolio:', error);
-      toast.error('Failed to load portfolio data');
+      console.error("Error fetching portfolio:", error.response?.data || error.message);
+      toast.error("Failed to load portfolio data");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // Fetch current prices from CoinGecko for a list of holdings and update state
   const fetchCurrentMarketPrices = async (holdings) => {
@@ -114,30 +102,18 @@ const PortfolioPage = () => {
 
   // Delete transaction
   const deleteTransaction = async (transactionId) => {
-    if (!window.confirm('Are you sure you want to delete this transaction?')) {
-      return;
-    }
-
+    if (!window.confirm("Are you sure you want to delete this transaction?")) return;
+  
     try {
-      const response = await fetch(`http://localhost:5001/api/portfolio/transaction/${transactionId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete transaction');
-      }
-
-      toast.success('Transaction deleted successfully');
+      await axiosInstance.delete(`/portfolio/transaction/${transactionId}`);
+      toast.success("Transaction deleted successfully");
       fetchPortfolio(); // Refresh data
     } catch (error) {
-      console.error('Error deleting transaction:', error);
-      toast.error('Failed to delete transaction');
+      console.error("Error deleting transaction:", error.response?.data || error.message);
+      toast.error("Failed to delete transaction");
     }
   };
+  
 
   // Load portfolio on component mount
   useEffect(() => {

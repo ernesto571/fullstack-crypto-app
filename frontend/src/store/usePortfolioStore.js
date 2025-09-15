@@ -1,6 +1,6 @@
 // Add these functions to your existing services/Api.js file
 
-const API_BASE_URL = 'https://fullstack-crypto-app.onrender.com/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 // Portfolio API functions
 export const portfolioApi = {
