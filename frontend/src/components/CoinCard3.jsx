@@ -20,7 +20,6 @@ function CoinCard3({ coin }) {
         toast.success(`${coin.name} removed from watchlist`);
       } else {
         await addToWatchlist(coin);
-        toast.success(`${coin.name} added to watchlist`);
       }
     } catch (error) {
       toast.error("Something went wrong. Please try again.");

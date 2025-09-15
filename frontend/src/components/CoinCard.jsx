@@ -107,7 +107,6 @@ function CoinCard() {
                               removeFromWatchlist(coin.id);
                             } else {
                               addToWatchlist(coin);
-                              toast.success(`${coin.name} added to watchlist`)
                             }
                           }}
                         />

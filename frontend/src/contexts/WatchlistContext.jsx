@@ -20,7 +20,7 @@ export const WatchlistProvider = ({ children }) => {
       } catch (error) {
         console.error("Error fetching watchlist:", error);
         // If user is not logged in, just keep empty watchlist
-        setWatchlist(data);
+        
       }
     };
     
@@ -39,7 +39,7 @@ export const WatchlistProvider = ({ children }) => {
         },
         { withCredentials: true }
       );
-      
+      toast.success(`${coin.name} added to watclist`)
       console.log("Added to watchlist:", data);
       setWatchlist(data); // Update with full watchlist from server
     } catch (error) {
