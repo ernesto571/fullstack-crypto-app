@@ -102,18 +102,18 @@ const PortfolioPage = () => {
 
   // Delete transaction
   const deleteTransaction = async (transactionId) => {
-    if (!window.confirm("Are you sure you want to delete this transaction?")) return;
-  
-    try {
-      await axiosInstance.delete(`/portfolio/transaction/${transactionId}`);
-      toast.success("Transaction deleted successfully");
-      fetchPortfolio(); // Refresh data
-    } catch (error) {
-      console.error("Error deleting transaction:", error.response?.data || error.message);
-      toast.error("Failed to delete transaction");
-    }
-  };
-  
+  if (!window.confirm("Are you sure you want to delete this transaction?")) return;
+
+  try {
+    await axiosInstance.delete(`/portfolio/transaction/${transactionId}`);
+    toast.success("Transaction deleted successfully");
+    fetchPortfolio(); // Refresh data
+  } catch (error) {
+    console.error("Error deleting transaction:", error.response?.data || error.message);
+    toast.error("Failed to delete transaction");
+  }
+};
+
 
   // Load portfolio on component mount
   useEffect(() => {
@@ -286,7 +286,7 @@ const PortfolioPage = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <th className="px-6 py-3">Asset</th>
+                  <th className="px-6 py-3 sticky left-0 z-50 bg-white shadow-sm">Asset</th>
                   <th className="px-6 py-3">Quantity</th>
                   <th className="px-6 py-3">Avg Cost</th>
                   <th className="px-6 py-3">Current Price</th>
@@ -300,7 +300,7 @@ const PortfolioPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {portfolio.holdings.map((holding) => (
                   <tr key={holding.coinId} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="pl-6 pr-10 py-4 whitespace-nowrap sticky left-0 bg-white hover:bg-gray-50 transition-colors z-50 shadow-sm">
                       <div className="flex items-center">
                         <img
                           src={holding.coinImage}

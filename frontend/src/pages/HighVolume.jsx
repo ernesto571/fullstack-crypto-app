@@ -78,7 +78,7 @@ import HighVolumeCoinCard from "../components/VolumeCoinCard";
               <thead className="sticky top-0 bg-white shadow-sm z-10">
                 <tr className="text-gray-800 font-light border-t-[1px] border-b-[1px] border-solid border-[#eff2f5] text-[0.9rem]">
                   <th className="px-3 md:px-5 lg:px-7 py-2 text-center">#</th>
-                  <th className="px-5 py-2 text-left">Coin</th>
+                  <th className="px-5 py-2 text-left sticky left-0 bg-white z-50 shadow-sm">Coin</th>
                   <th className="px-9 py-2 text-center">Price</th>
                   <th className="px-7 py-2 text-left">24h</th>
                   <th className="px-7 py-2 text-center">24h Volume</th>

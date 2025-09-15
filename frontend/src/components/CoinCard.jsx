@@ -69,7 +69,7 @@ function CoinCard() {
             <tr className="text-gray-800 font-light border-t border-b border-[#eff2f5] text-[0.9rem]">
               <th className="px-3 py-2 text-center">{""}</th>
               <th className="px-3 md:px-7 lg:px-7 py-2 text-left">#</th>
-              <th className="px-3 py-2 text-left ">Coin</th>
+              <th className="px-3 py-2 text-left sticky bg-white left-0 z-50 shadow-sm">Coin</th>
               <th className="px-3 py-2 text-left">Price</th>
               <th className="px-7 py-2 text-left">24h</th>
               <th className="px-7 py-2 text-left">ATH</th>
@@ -115,7 +115,7 @@ function CoinCard() {
                       {coin.market_cap_rank}
                     </td>
                     <td
-                      className="flex place-items-center rounded-full py-[20px] text-gray-700 truncate bg-white hover:cursor-pointer"
+                      className="flex place-items-center rounded-full py-[20px] text-gray-700 truncate  hover:cursor-pointer sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-sm"
                       onClick={() => handleClick(coin.id)}
                     >
                       <img

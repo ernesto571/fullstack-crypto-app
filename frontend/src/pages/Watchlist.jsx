@@ -93,7 +93,7 @@ function WatchlistPage() {
             <tr className="text-gray-800 font-light border-t border-b border-[#eff2f5] text-[0.9rem]">
               <th className="px-3 py-2 text-center">{""}</th>
               <th className="px-3 md:px-7 lg:px-7 py-2 text-center">#</th>
-              <th className="px-3 py-2 text-left sticky left-0">Coin</th>
+              <th className="px-3 py-2 text-left bg-white z-10 sticky left-0">Coin</th>
               <th className="px-3 py-2 text-center">Price</th>
               <th className="px-4 py-2 text-left">24h</th>
               <th className="px-7 py-2 text-center">ATH</th>
@@ -139,7 +139,7 @@ function WatchlistPage() {
                       {coin.market_cap_rank}
                     </td>
                     <td
-                      className="flex place-items-center rounded-full py-[20px] text-gray-700 truncate bg-white hover:cursor-pointer"
+                      className="flex place-items-center rounded-full py-[20px] text-gray-700 truncate sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-smhover:cursor-pointer"
                       onClick={() => handleClick(coin.id)}
                     >
                       <img

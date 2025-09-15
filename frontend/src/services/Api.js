@@ -15,7 +15,7 @@ const api = axios.create({
 // Rate-limit Safe Layer
 // ======================
 let cache = {};
-const DEFAULT_TTL = 60 * 1000; // 1 minute cache
+const DEFAULT_TTL = 60 * 2000; // 1 minute cache
 
 // Retry logic with exponential backoff
 api.interceptors.response.use(null, async (error) => {
