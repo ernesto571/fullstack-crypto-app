@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5001/api"; // 👈 your backend URL
+const API_BASE = "https://fullstack-crypto-app.onrender.com/api"; // 👈 your backend URL
 
 // 🔹 General Crypto News
 export const getCryptoNews = async () => {
