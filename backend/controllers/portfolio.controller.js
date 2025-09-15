@@ -153,7 +153,8 @@ export const getPortfolio = async (req, res) => {
     let totalDayChange = 0;
 
     const enrichedHoldings = activeHoldings.map((holding) => {
-      const currentPrice = priceResponse[holding.coinId]?.usd || 0;
+      const currentPrice = priceResponse[holding.coinId]?.usd;
+      if (!currentPrice || currentPrice <= 0) return { ...holding, currentPrice: 0 };
       const dayChangePercentage = priceResponse[holding.coinId]?.usd_24h_change || 0;
 
       const avgCost = holding.totalCostBasis / holding.totalQuantity;
