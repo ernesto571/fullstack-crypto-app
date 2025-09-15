@@ -14,6 +14,8 @@ export const generateToken = (userId, res) => {
     httpOnly: true, // prevent XSS
     secure: process.env.NODE_ENV !== "development", // HTTPS only in prod
     path: "/", // important for APIs
+    sameSite: "None",
+    domain: ".onrender.com"
   });
 
   console.log(token)

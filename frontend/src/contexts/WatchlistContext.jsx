@@ -20,7 +20,7 @@ export const WatchlistProvider = ({ children }) => {
       } catch (error) {
         console.error("Error fetching watchlist:", error);
         // If user is not logged in, just keep empty watchlist
-        setWatchlist([]);
+        setWatchlist(data);
       }
     };
     
