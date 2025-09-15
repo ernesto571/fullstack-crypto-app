@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Search } from 'lucide-react';
 import { searchCoins } from '../services/Api';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null }) {
   const [formData, setFormData] = useState({
@@ -60,7 +61,6 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
   // Reset form when modal closes or pre-fill with coin data
   useEffect(() => {
     if (isOpen && preFilledCoin) {
-      // Pre-fill with coin data
       setFormData({
         coinId: preFilledCoin.coinId,
         coinName: preFilledCoin.coinName,
@@ -75,7 +75,6 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
       setCoinSearch(preFilledCoin.coinName);
       setShowSuggestions(false);
     } else if (!isOpen) {
-      // Reset form when modal closes
       setFormData({
         coinId: '',
         coinName: '',
@@ -105,7 +104,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
     setShowSuggestions(false);
   };
 
-  // Fetch real market price for selected coin and populate pricePerCoin
+  // Fetch real market price for selected coin
   const fetchMarketPrice = async () => {
     if (!formData.coinId) {
       toast.error('Please select a coin first');
@@ -114,8 +113,7 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
 
     try {
       setFetchingPrice(true);
-      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(formData.coinId)}&vs_currencies=usd`);
-      const data = await response.json();
+      const { data } = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(formData.coinId)}&vs_currencies=usd`);
       const price = data[formData.coinId]?.usd;
 
       if (!price && price !== 0) {
@@ -153,36 +151,23 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost:5001/api/portfolio/transaction', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          coinId: formData.coinId,
-          coinName: formData.coinName,
-          coinSymbol: formData.coinSymbol,
-          coinImage: formData.coinImage,
-          type: formData.type,
-          quantity: parseFloat(formData.quantity),
-          pricePerCoin: parseFloat(formData.pricePerCoin),
-          date: formData.date,
-          notes: formData.notes
-        })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to add transaction');
-      }
+      const { data } = await axios.post('http://localhost:5001/api/portfolio/transaction', {
+        coinId: formData.coinId,
+        coinName: formData.coinName,
+        coinSymbol: formData.coinSymbol,
+        coinImage: formData.coinImage,
+        type: formData.type,
+        quantity: parseFloat(formData.quantity),
+        pricePerCoin: parseFloat(formData.pricePerCoin),
+        date: formData.date,
+        notes: formData.notes
+      }, { withCredentials: true });
 
       toast.success(`${formData.type === 'buy' ? 'Buy' : 'Sell'} transaction added successfully!`);
       onSuccess();
     } catch (error) {
-      console.error('Error adding transaction:', error);
-      toast.error(error.message || 'Failed to add transaction');
+      console.error('Error adding transaction:', error.response?.data || error.message);
+      toast.error(error.response?.data?.error || 'Failed to add transaction');
     } finally {
       setLoading(false);
     }
@@ -407,6 +392,6 @@ function AddTransactionModal({ isOpen, onClose, onSuccess, preFilledCoin = null 
       </div>
     </div>
   );
-};
+}
 
 export default AddTransactionModal;

@@ -79,10 +79,11 @@ function WatchlistPage() {
   }
 
   return (
-    <div>
-
-    <div className="w-[98%] lg:w-[94%] lg:ml-[3%] ml-[1%] mt-[49px] ">
+    <div className="mt-[49px]">
       <Header/>
+
+    <div className="w-[98%] lg:w-[94%] lg:ml-[3%] ml-[1%]  ">
+      
      
       <h1 className="text-2xl font-bold mb-6 pt-4 text-gray-800">My Watchlist</h1>
       
