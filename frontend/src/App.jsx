@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
+
 
 import { useAuthStore } from "./store/useAuthStore";
 // import { useThemeStore } from "./store/useThemeStore";
@@ -20,6 +20,7 @@ import CoinDetails from "./pages/CoinDetailsPage";
 import NewsPage from "./pages/NewsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import WatchlistPage from "./pages/Watchlist";
+import ProfilePage from "./pages/ProfilePage"
 
 
 function App() {
@@ -55,8 +56,8 @@ function App() {
         <Route path="/cryptocurrency/search" element={authUser ? <SearchResults /> : <Navigate to="/login" />}/>
         <Route path="/cryptocurrency/:id" element={authUser ? <CoinDetails /> : <Navigate to="/login" />}/>
         <Route path="/cryptocurrency/news" element={authUser ? <NewsPage /> : <Navigate to="/login" />}/>
-        <Route path="/watchlist" element={<WatchlistPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/watchlist" element={authUser ? <WatchlistPage /> : <Navigate to="/login" />} />
+        <Route path="/portfolio" element={authUser ? <PortfolioPage/> : <Navigate to="/login" />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
 
