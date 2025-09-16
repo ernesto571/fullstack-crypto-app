@@ -205,7 +205,9 @@ const PortfolioPage = () => {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-3 mt-3 md:mt-0 lg:mt-0">
+          <div className="block md:flex lg:flex items-center gap-3 mt-3 md:mt-0 lg:mt-0">
+            <div className='flex gap-3 mb-3 md:mb-0 lg:mb-0'>
+
             <button
               onClick={refreshPrices}
               disabled={refreshing}
@@ -221,6 +223,8 @@ const PortfolioPage = () => {
               {showValues ? <Eye size={16} /> : <EyeOff size={16} />}
               {showValues ? 'Hide' : 'Show'}
             </button>
+            </div>
+
             <button 
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
