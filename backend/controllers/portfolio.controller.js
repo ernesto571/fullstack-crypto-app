@@ -11,10 +11,20 @@ const CACHE_TTL = 60 * 1000; // 1 minute
 // --- Retry helper for API calls ---
 const safeFetch = async (url, options = {}, retries = 3, delay = 1000) => {
   try {
-    return await axios.get(url, options);
+    const response = await axios.get(url, {
+      ...options,
+      timeout: 10000, // 10 second timeout
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; CryptoPortfolioApp/1.0)',
+        ...options.headers
+      }
+    });
+    return response;
   } catch (error) {
-    if (retries > 0 && error.response?.status === 429) {
-      console.warn(`429 Too Many Requests. Retrying in ${delay}ms...`);
+    console.error(`API call failed (${retries} retries left):`, error.message);
+    
+    if (retries > 0 && (error.response?.status === 429 || error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT')) {
+      console.warn(`Retrying in ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return safeFetch(url, options, retries - 1, delay * 2);
     }
@@ -28,19 +38,28 @@ const getCachedPrices = async (coinIds) => {
 
   // Serve from cache if still fresh
   if (priceCache.data && now - priceCache.timestamp < CACHE_TTL) {
+    console.log('Serving prices from cache');
     return priceCache.data;
   }
 
   try {
+    console.log('Fetching fresh prices for:', coinIds);
     const response = await safeFetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`
     );
+    
     priceCache.data = response.data;
     priceCache.timestamp = now;
+    console.log('Price cache updated successfully');
     return response.data;
   } catch (error) {
     console.error("Price fetch error:", error.message);
-    return priceCache.data || {}; // fallback to stale cache
+    // Return stale cache or empty object as fallback
+    if (priceCache.data) {
+      console.warn('Using stale price cache due to API error');
+      return priceCache.data;
+    }
+    return {};
   }
 };
 
@@ -50,8 +69,13 @@ export const addTransaction = async (req, res) => {
     const { coinId, coinName, coinSymbol, coinImage, type, quantity, pricePerCoin, date, notes } = req.body;
     const userId = req.user.id;
 
+    // Validate required fields
+    if (!coinId || !coinName || !type || !quantity || !pricePerCoin) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     // Calculate total amount
-    const totalAmount = quantity * pricePerCoin;
+    const totalAmount = parseFloat(quantity) * parseFloat(pricePerCoin);
 
     const transaction = new Transaction({
       userId,
@@ -60,8 +84,8 @@ export const addTransaction = async (req, res) => {
       coinSymbol,
       coinImage,
       type,
-      quantity,
-      pricePerCoin,
+      quantity: parseFloat(quantity),
+      pricePerCoin: parseFloat(pricePerCoin),
       totalAmount,
       date: date ? new Date(date) : new Date(),
       notes,
@@ -75,7 +99,7 @@ export const addTransaction = async (req, res) => {
   }
 };
 
-// Get user's portfolio summary
+// Get user's portfolio summary with live prices
 export const getPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -116,11 +140,11 @@ export const getPortfolio = async (req, res) => {
       }
 
       if (type === "buy") {
-        holdingsMap[coinId].totalQuantity += quantity;
-        holdingsMap[coinId].totalCostBasis += totalAmount;
+        holdingsMap[coinId].totalQuantity += parseFloat(quantity);
+        holdingsMap[coinId].totalCostBasis += parseFloat(totalAmount);
       } else if (type === "sell") {
-        holdingsMap[coinId].totalQuantity -= quantity;
-        holdingsMap[coinId].totalCostBasis -= totalAmount;
+        holdingsMap[coinId].totalQuantity -= parseFloat(quantity);
+        holdingsMap[coinId].totalCostBasis -= parseFloat(totalAmount);
       }
 
       holdingsMap[coinId].transactions.push(transaction);
@@ -143,7 +167,7 @@ export const getPortfolio = async (req, res) => {
       });
     }
 
-    // Get current prices (cached)
+    // Get current prices (cached) from backend
     const coinIds = activeHoldings.map((h) => h.coinId).join(",");
     const priceResponse = await getCachedPrices(coinIds);
 
@@ -153,9 +177,9 @@ export const getPortfolio = async (req, res) => {
     let totalDayChange = 0;
 
     const enrichedHoldings = activeHoldings.map((holding) => {
-      const currentPrice = priceResponse[holding.coinId]?.usd;
-      if (!currentPrice || currentPrice <= 0) return { ...holding, currentPrice: 0 };
-      const dayChangePercentage = priceResponse[holding.coinId]?.usd_24h_change || 0;
+      const priceData = priceResponse[holding.coinId];
+      const currentPrice = priceData?.usd || 0;
+      const dayChangePercentage = priceData?.usd_24h_change || 0;
 
       const avgCost = holding.totalCostBasis / holding.totalQuantity;
       const currentValue = holding.totalQuantity * currentPrice;
@@ -169,13 +193,13 @@ export const getPortfolio = async (req, res) => {
 
       return {
         ...holding,
-        currentPrice,
-        avgCost,
-        currentValue,
-        pnl,
-        pnlPercentage,
-        dayChange,
-        dayChangePercentage,
+        currentPrice: parseFloat(currentPrice) || 0,
+        avgCost: parseFloat(avgCost) || 0,
+        currentValue: parseFloat(currentValue) || 0,
+        pnl: parseFloat(pnl) || 0,
+        pnlPercentage: parseFloat(pnlPercentage) || 0,
+        dayChange: parseFloat(dayChange) || 0,
+        dayChangePercentage: parseFloat(dayChangePercentage) || 0,
       };
     });
 
@@ -183,20 +207,39 @@ export const getPortfolio = async (req, res) => {
     const totalPnLPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0;
     const totalDayChangePercentage = totalValue > 0 ? (totalDayChange / totalValue) * 100 : 0;
 
-    res.json({
+    const portfolioData = {
       holdings: enrichedHoldings,
       summary: {
-        totalValue,
-        totalCostBasis,
-        totalPnL,
-        totalPnLPercentage,
-        dayChange: totalDayChange,
-        dayChangePercentage: totalDayChangePercentage,
+        totalValue: parseFloat(totalValue) || 0,
+        totalCostBasis: parseFloat(totalCostBasis) || 0,
+        totalPnL: parseFloat(totalPnL) || 0,
+        totalPnLPercentage: parseFloat(totalPnLPercentage) || 0,
+        dayChange: parseFloat(totalDayChange) || 0,
+        dayChangePercentage: parseFloat(totalDayChangePercentage) || 0,
       },
-    });
+    };
+
+    res.json(portfolioData);
   } catch (error) {
     console.error("Get portfolio error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Failed to fetch portfolio data" });
+  }
+};
+
+// Get current market prices - dedicated endpoint for frontend
+export const getCurrentPrices = async (req, res) => {
+  try {
+    const { coinIds } = req.query;
+    
+    if (!coinIds) {
+      return res.status(400).json({ error: "coinIds parameter is required" });
+    }
+
+    const priceData = await getCachedPrices(coinIds);
+    res.json(priceData);
+  } catch (error) {
+    console.error("Get current prices error:", error);
+    res.status(500).json({ error: "Failed to fetch current prices" });
   }
 };
 
@@ -211,15 +254,15 @@ export const getTransactions = async (req, res) => {
 
     const transactions = await Transaction.find(query)
       .sort({ date: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
 
     const total = await Transaction.countDocuments(query);
 
     res.json({
       transactions,
       pagination: {
-        currentPage: page,
+        currentPage: parseInt(page),
         totalPages: Math.ceil(total / limit),
         totalTransactions: total,
       },
@@ -244,12 +287,18 @@ export const updateTransaction = async (req, res) => {
         return res.status(404).json({ error: "Transaction not found" });
       }
 
-      const quantity = updateData.quantity || transaction.quantity;
-      const pricePerCoin = updateData.pricePerCoin || transaction.pricePerCoin;
+      const quantity = parseFloat(updateData.quantity || transaction.quantity);
+      const pricePerCoin = parseFloat(updateData.pricePerCoin || transaction.pricePerCoin);
       updateData.totalAmount = quantity * pricePerCoin;
+      updateData.quantity = quantity;
+      updateData.pricePerCoin = pricePerCoin;
     }
 
-    const transaction = await Transaction.findOneAndUpdate({ _id: transactionId, userId }, updateData, { new: true });
+    const transaction = await Transaction.findOneAndUpdate(
+      { _id: transactionId, userId }, 
+      updateData, 
+      { new: true }
+    );
 
     if (!transaction) {
       return res.status(404).json({ error: "Transaction not found" });
