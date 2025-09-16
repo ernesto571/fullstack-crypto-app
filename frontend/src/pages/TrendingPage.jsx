@@ -42,20 +42,20 @@ function TrendingPage() {
       {/* Heading */}
       <div className="mt-5 w-[94%] ml-[3%]">
         <div className="flex gap-4 items-center text-gray-700 mb-3">
-          <Link
-            to="/cryptocurrency"
-            className="hover:text-green-500 flex items-center font-semibold text-gray-600"
-          >
-            Cryptocurrencies{" "}
-            <ChevronRight size={25} className="md:ml-[2px] lg:ml-1 pt-[5px]" />
-          </Link>
-          <Link
-            to="/highlights"
-            className="hover:text-green-500 flex font-semibold text-gray-600"
-          >
-            Highlights{" "}
-            <ChevronRight size={25} className="md:ml-[2px] lg:ml-1 pt-[5px]" />
-          </Link>
+            <Link
+              to="/"
+              className="hover:text-green-500 flex items-center font-semibold text-gray-600"
+            >
+              Cryptocurrencies{" "}
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
+            </Link>
+            <Link
+              to="/highlights"
+              className="hover:text-green-500 flex font-semibold text-gray-600"
+            >
+              Highlights{" "}
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
+            </Link>
           <p className="text-gray-400 font-semibold truncate">
             Top Trending Cryptocurrencies Today
           </p>

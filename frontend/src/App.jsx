@@ -21,6 +21,7 @@ import NewsPage from "./pages/NewsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import WatchlistPage from "./pages/Watchlist";
 import ProfilePage from "./pages/ProfilePage"
+import NotFound from "./pages/NotFoundPage";
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
       <Navbar/>
 
       <Routes>
+      <Route path="*" element={<NotFound />} />
         <Route path="/" element={<Navigate to="/cryptocurrency" />} />
       <Route path="/cryptocurrency" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/cryptocurrency" />} />

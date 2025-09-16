@@ -115,7 +115,7 @@ function CoinCard() {
                       {coin.market_cap_rank}
                     </td>
                     <td
-                      className="flex place-items-center rounded-full py-[20px] text-gray-700 truncate  hover:cursor-pointer sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-sm"
+                      className="flex place-items-center  py-[20px] text-gray-700 truncate  hover:cursor-pointer sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-sm"
                       onClick={() => handleClick(coin.id)}
                     >
                       <img

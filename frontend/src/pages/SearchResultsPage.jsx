@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { searchCoins } from "../services/Api";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
+
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
@@ -46,6 +49,26 @@ function SearchResults() {
     <div className="mt-[49px]">
       <Header />
       <div className="p-6 w-[96%] ml-[2%]">
+        <div className="flex mb-3">
+            <Link
+              to="/"
+              className="hover:text-green-500 flex items-center font-semibold text-gray-600"
+            >
+              Cryptocurrencies{" "}
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
+            </Link>
+            <Link
+              to="/highlights"
+              className="hover:text-green-500 flex font-semibold text-gray-600"
+            >
+              Highlights{" "}
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
+            </Link>
+            <p className="text-gray-400 font-semibold truncate ml-1">
+              Search Results
+            </p>
+        </div>
+          
         <h1 className="text-2xl font-bold mb-4 text-gray-800 truncate">
           Search Results for "
           {coinQuery.charAt(0).toUpperCase() + coinQuery.slice(1)}"

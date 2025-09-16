@@ -15,7 +15,7 @@ function HighVolumeCoinCard({ coin }) {
     <tr className="text-center border-solid border-b-[1px] border-[#eff2f5] text-[0.9rem]">
       
       <td className="py-[25px] text-[0.9rem]">{coin.market_cap_rank || "-"}</td>
-      <td className="flex place-items-center py-[20px] rounded-full text-gray-700 text-[0.9rem] hover:cursor-pointer sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-sm" onClick={() => handleClick(coin.id)}>
+      <td className="flex place-items-center py-[20px]  text-gray-700 text-[0.9rem] hover:cursor-pointer sticky left-0 bg-white hover:bg-gray-50 transition-colors z-10 shadow-sm" onClick={() => handleClick(coin.id)}>
         <img
           src={coin.image }
           alt={coin.name}

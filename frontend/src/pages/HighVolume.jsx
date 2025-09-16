@@ -47,16 +47,16 @@ import HighVolumeCoinCard from "../components/VolumeCoinCard";
               className="hover:text-green-500 flex items-center font-semibold text-gray-600"
             >
               Cryptocurrencies{" "}
-              <ChevronRight size={25} className="ml-1 pt-[5px]" />
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
             </Link>
             <Link
               to="/highlights"
               className="hover:text-green-500 flex font-semibold text-gray-600"
             >
               Highlights{" "}
-              <ChevronRight size={25} className="ml-1 pt-[5px]" />
+              <ChevronRight size={22} className="ml-1 mt-[2px]" />
             </Link>
-            <p className="text-gray-400 font-semibold truncate ">
+            <p className="text-gray-400 font-semibold truncate ml-1">
               High Volume
             </p>
           </div>
