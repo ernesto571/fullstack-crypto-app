@@ -6,7 +6,7 @@ const priceCache = {
   data: null,
   timestamp: 0,
 };
-const CACHE_TTL = 60 * 1000; // 1 minute
+const CACHE_TTL = 60 * 5000; // 5 minute
 
 // --- Retry helper for API calls ---
 const safeFetch = async (url, options = {}, retries = 3, delay = 1000) => {
