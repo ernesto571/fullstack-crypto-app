@@ -112,7 +112,7 @@ const getCachedPrices = async (coinIds) => {
     coinIdArray.forEach(coinId => {
       // Provide reasonable fallback prices for common coins
       let fallbackPrice = 1;
-      if (coinId === 'bitcoin') fallbackPrice = 65000;
+      if (coinId === 'bitcoin') fallbackPrice = 10000;
       else if (coinId === 'ethereum') fallbackPrice = 3500;
       else if (coinId === 'binancecoin') fallbackPrice = 600;
       else if (coinId === 'cardano') fallbackPrice = 0.5;
