@@ -346,98 +346,124 @@ const PortfolioPage = () => {
                     <th className="px-6 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {portfolio.holdings.map((holding) => (
-                    <tr key={holding.coinId} className="hover:bg-gray-50 transition-colors">
-                      <td className="pl-6 pr-10 py-4 whitespace-nowrap sticky left-0 bg-white hover:bg-gray-50 transition-colors z-50 shadow-sm">
-                        <div className="flex items-center">
-                          <img
-                            src={holding.coinImage}
-                            alt={holding.coinName}
-                            className="w-8 h-8 rounded-full mr-3"
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/32/cccccc/ffffff?text=' + holding.coinSymbol?.charAt(0);
-                            }}
-                          />
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {holding.coinName}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {holding.coinSymbol?.toUpperCase()}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatCurrency(holding.totalCostBasis)}
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className={`${parseFloat(holding.pnl || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          <div className="font-medium">
-                            {showValues ? 
-                              `${parseFloat(holding.pnl || 0) >= 0 ? '+' : ''}${formatCurrency(holding.pnl)}` : 
-                              '****'
-                            }
-                          </div>
-                          <div className="text-xs">
-                            {showValues ? 
-                              `${parseFloat(holding.pnlPercentage || 0) >= 0 ? '+' : ''}${formatPercentage(holding.pnlPercentage)}` : 
-                              '****'
-                            }
-                          </div>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className={`${parseFloat(holding.dayChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          <div className="flex items-center">
-                            {parseFloat(holding.dayChange || 0) >= 0 ? 
-                              <ArrowUpRight size={12} className="mr-1" /> : 
-                              <ArrowDownRight size={12} className="mr-1" />
-                            }
-                            {showValues ? formatCurrency(Math.abs(parseFloat(holding.dayChange || 0))) : '****'}
-                          </div>
-                          <div className="text-xs">
-                            {showValues ? formatPercentage(Math.abs(parseFloat(holding.dayChangePercentage || 0))) : '****'}
-                          </div>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <button 
-                            className="text-gray-400 hover:text-gray-600 transition"
-                            onClick={() => {
-                              if (holding.transactions && holding.transactions.length > 0) {
-                                setSelectedTransaction(holding.transactions[0]);
-                                setShowEditModal(true);
-                              } else {
-                                toast.error("No transactions available for editing");
-                              }
-                            }}
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                          <button 
-                            className="text-gray-400 hover:text-red-600 transition"
-                            onClick={() => {
-                              if (holding.transactions && holding.transactions.length > 0) {
-                                deleteTransaction(holding.transactions[0]._id);
-                              } else {
-                                toast.error("No transactions available for deletion");
-                              }
-                            }}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+
+<tbody className="bg-white divide-y divide-gray-200">
+  {portfolio.holdings.map((holding) => (
+    <tr key={holding.coinId} className="hover:bg-gray-50 transition-colors">
+      {/* Asset */}
+      <td className="pl-6 pr-10 py-4 whitespace-nowrap sticky left-0 bg-white hover:bg-gray-50 transition-colors z-50 shadow-sm">
+        <div className="flex items-center">
+          <img
+            src={holding.coinImage}
+            alt={holding.coinName}
+            className="w-8 h-8 rounded-full mr-3"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/32/cccccc/ffffff?text=' + holding.coinSymbol?.charAt(0);
+            }}
+          />
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {holding.coinName}
+            </div>
+            <div className="text-sm text-gray-500">
+              {holding.coinSymbol?.toUpperCase()}
+            </div>
+          </div>
+        </div>
+      </td>
+      
+      {/* Quantity */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {formatNumber(holding.totalQuantity, 8)}
+      </td>
+      
+      {/* Avg Cost */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {formatCurrency(holding.avgCost, 6)}
+      </td>
+      
+      {/* Current Price */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {formatCurrency(holding.currentPrice, 6)}
+      </td>
+      
+      {/* Market Value */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        {formatCurrency(holding.currentValue)}
+      </td>
+      
+      {/* Cost Basis */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {formatCurrency(holding.totalCostBasis)}
+      </td>
+      
+      {/* P&L */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <div className={`${parseFloat(holding.pnl || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className="font-medium">
+            {showValues ? 
+              `${parseFloat(holding.pnl || 0) >= 0 ? '+' : ''}${formatCurrency(holding.pnl)}` : 
+              '****'
+            }
+          </div>
+          <div className="text-xs">
+            {showValues ? 
+              `${parseFloat(holding.pnlPercentage || 0) >= 0 ? '+' : ''}${formatPercentage(holding.pnlPercentage)}` : 
+              '****'
+            }
+          </div>
+        </div>
+      </td>
+      
+      {/* 24h Change */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <div className={`${parseFloat(holding.dayChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className="flex items-center">
+            {parseFloat(holding.dayChange || 0) >= 0 ? 
+              <ArrowUpRight size={12} className="mr-1" /> : 
+              <ArrowDownRight size={12} className="mr-1" />
+            }
+            {showValues ? formatCurrency(Math.abs(parseFloat(holding.dayChange || 0))) : '****'}
+          </div>
+          <div className="text-xs">
+            {showValues ? formatPercentage(Math.abs(parseFloat(holding.dayChangePercentage || 0))) : '****'}
+          </div>
+        </div>
+      </td>
+      
+      {/* Actions */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <div className="flex items-center gap-2">
+          <button
+            className="text-gray-400 hover:text-gray-600 transition"
+            onClick={() => {
+              if (holding.transactions && holding.transactions.length > 0) {
+                setSelectedTransaction(holding.transactions[0]);
+                setShowEditModal(true);
+              } else {
+                toast.error("No transactions available for editing");
+              }
+            }}
+          >
+            <Edit3 size={16} />
+          </button>
+          <button
+            className="text-gray-400 hover:text-red-600 transition"
+            onClick={() => {
+              if (holding.transactions && holding.transactions.length > 0) {
+                deleteTransaction(holding.transactions[0]._id);
+              } else {
+                toast.error("No transactions available for deletion");
+              }
+            }}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
               </table>
             </div>
           ) : (
