@@ -127,7 +127,7 @@ function HomePage(){
                 <div>
                         <span className="flex justify-between px-3 py-4  lg:py-2 place-items-center">
                             <h3 className=" font-semibold text-lg text-gray-700"> 🔥 Trending </h3>
-                            <Link className="text-gray-600 font-semibold flex hover:text-green-500" to="/trending-crypto">View more <ChevronRight size={23} className="pt-[5px]"/> </Link>
+                            <Link className="text-gray-600 font-semibold flex hover:text-green-500" to="/trending-crypto">View more <ChevronRight size={22} className=" mt-[2px]" /> </Link>
                         </span>
                         <ul className="flex-row">
                         {trending.slice(0, 3).map((item) => (
@@ -167,7 +167,7 @@ function HomePage(){
                 <div>
                         <span className="flex justify-between px-3  py-4  lg:py-2 place-items-center">
                             <h3 className="font-semibold text-lg text-gray-700"> 🚀 Top Gainers </h3>
-                            <Link className="text-gray-600 font-semibold flex hover:text-green-500" to="/top-gainers_losers">View more <ChevronRight size={23} className="pt-[5px]"/> </Link>
+                            <Link className="text-gray-600 font-semibold flex hover:text-green-500" to="/top-gainers_losers">View more <ChevronRight size={22} className=" mt-[2px]" /> </Link>
                         </span>
                         <ul className="flex-row">
                         {gainers.slice(0, 3).map((item) => (

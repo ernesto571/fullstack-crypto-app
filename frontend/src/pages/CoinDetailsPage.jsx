@@ -19,7 +19,7 @@ function CoinDetails() {
 
   const navigate = useNavigate();
 
-  const [coinAmount, setCoinAmount] = useState(1);
+  const [coinAmount, setCoinAmount] = useState();
   const [usdValue, setUsdValue] = useState();
 
   // pagination for tickers
