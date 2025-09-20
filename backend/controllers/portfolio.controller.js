@@ -6,13 +6,33 @@ const priceCache = {
   data: null,
   timestamp: 0,
 };
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// CoinGecko API configuration
-const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
-const COINGECKO_BASE_URL = COINGECKO_API_KEY 
-  ? 'https://pro-api.coingecko.com/api/v3' 
-  : 'https://api.coingecko.com/api/v3';
+// Since you're not using pro, always use free API
+const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
+
+// Function to validate coin IDs and remove problematic ones
+const validateAndCleanCoinIds = (coinIds) => {
+  const coinArray = coinIds.split(',');
+  const validatedIds = [];
+  
+  // List of known problematic coin IDs for free tier
+  const problematicIds = ['pepe']; // Add more if needed
+  
+  coinArray.forEach(coinId => {
+    const trimmedId = coinId.trim().toLowerCase();
+    
+    if (problematicIds.includes(trimmedId)) {
+      console.log(`Skipping problematic coin ID: ${trimmedId}`);
+      return; // Skip this coin
+    }
+    
+    validatedIds.push(trimmedId);
+    console.log(`Including coin ID: ${trimmedId}`);
+  });
+  
+  return validatedIds.join(',');
+};
 
 // --- Retry helper for API calls ---
 const safeFetch = async (url, options = {}, retries = 2, delay = 3000) => {
@@ -23,16 +43,13 @@ const safeFetch = async (url, options = {}, retries = 2, delay = 3000) => {
       ...options.headers
     };
 
-    // Add API key if available
-    if (COINGECKO_API_KEY) {
-      headers['x-cg-pro-api-key'] = COINGECKO_API_KEY;
-    }
-
+    // DON'T add any API key headers for free tier
+    console.log('Using CoinGecko Free API (no key required)');
     console.log(`Making API request to: ${url}`);
     
     const response = await axios.get(url, {
       ...options,
-      timeout: 20000, // 20 second timeout
+      timeout: 15000,
       headers
     });
     
@@ -43,24 +60,33 @@ const safeFetch = async (url, options = {}, retries = 2, delay = 3000) => {
       message: error.message,
       status: error.response?.status,
       statusText: error.response?.statusText,
-      url: url
+      url: url,
+      responseData: error.response?.data
     });
     
-    if (retries > 0) {
-      if (error.response?.status === 429) {
-        console.warn(`Rate limited. Retrying in ${delay}ms...`);
-      } else if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
-        console.warn(`Connection error. Retrying in ${delay}ms...`);
-      } else if (error.response?.status >= 500) {
-        console.warn(`Server error. Retrying in ${delay}ms...`);
-      } else {
-        // Don't retry for other errors (400, 404, etc.)
-        throw error;
+    // For 400 errors, try removing problematic coins
+    if (error.response?.status === 400 && retries > 0) {
+      console.error('400 Bad Request - trying without problematic coins');
+      
+      // Try with basic coins only
+      if (url.includes('pepe') || url.includes(',')) {
+        console.log('Retrying with basic coins only...');
+        const basicUrl = url.replace(/ids=[^&]+/, 'ids=bitcoin,ethereum,dogecoin');
+        
+        if (basicUrl !== url) {
+          return safeFetch(basicUrl, options, 0, delay); // No more retries
+        }
       }
       
+      throw error;
+    }
+    
+    if (retries > 0 && error.response?.status === 429) {
+      console.warn(`Rate limited. Retrying in ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return safeFetch(url, options, retries - 1, delay * 2);
     }
+    
     throw error;
   }
 };
@@ -69,17 +95,24 @@ const safeFetch = async (url, options = {}, retries = 2, delay = 3000) => {
 const getCachedPrices = async (coinIds) => {
   const now = Date.now();
 
-  // Serve from cache if still fresh
   if (priceCache.data && now - priceCache.timestamp < CACHE_TTL) {
     console.log('Serving prices from cache');
     return priceCache.data;
   }
 
   try {
-    console.log('Fetching fresh prices for:', coinIds);
+    console.log('Original coin IDs:', coinIds);
     
-    // Use the appropriate base URL based on API key availability
-    const url = `${COINGECKO_BASE_URL}/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`;
+    // Clean problematic coin IDs
+    const cleanedCoinIds = validateAndCleanCoinIds(coinIds);
+    console.log('Cleaned coin IDs:', cleanedCoinIds);
+    
+    if (!cleanedCoinIds) {
+      throw new Error('No valid coin IDs after cleaning');
+    }
+    
+    const url = `${COINGECKO_BASE_URL}/simple/price?ids=${cleanedCoinIds}&vs_currencies=usd&include_24hr_change=true`;
+    console.log('Full API URL:', url);
     
     const response = await safeFetch(url);
     
@@ -98,79 +131,81 @@ const getCachedPrices = async (coinIds) => {
       coinIds: coinIds
     });
     
-    // Return stale cache if available
     if (priceCache.data) {
       console.warn('Using stale price cache due to API error');
       return priceCache.data;
     }
     
-    // Return mock data with reasonable fallback prices as last resort
+    // Fallback prices for all requested coins
     console.warn('No cached data available, using fallback prices');
     const fallbackPrices = {};
     const coinIdArray = coinIds.split(',');
     
     coinIdArray.forEach(coinId => {
-      // Provide reasonable fallback prices for common coins
       let fallbackPrice = 1;
-      if (coinId === 'bitcoin') fallbackPrice = 100000;
-      else if (coinId === 'ethereum') fallbackPrice = 3500;
-      else if (coinId === 'binancecoin') fallbackPrice = 600;
-      else if (coinId === 'cardano') fallbackPrice = 0.5;
-      else if (coinId === 'solana') fallbackPrice = 150;
+      const cleanId = coinId.trim().toLowerCase();
       
-      fallbackPrices[coinId] = {
+      if (cleanId === 'bitcoin') fallbackPrice = 100000;
+      else if (cleanId === 'ethereum') fallbackPrice = 3500;
+      else if (cleanId === 'binancecoin') fallbackPrice = 650;
+      else if (cleanId === 'solana') fallbackPrice = 195;
+      else if (cleanId === 'dogecoin') fallbackPrice = 0.12;
+      else if (cleanId === 'pepe') fallbackPrice = 0.00001;
+      else if (cleanId === 'cardano') fallbackPrice = 0.36;
+      else if (cleanId === 'ripple') fallbackPrice = 0.58;
+      
+      fallbackPrices[cleanId] = {
         usd: fallbackPrice,
         usd_24h_change: 0
       };
     });
     
+    console.log('Using fallback prices:', fallbackPrices);
     return fallbackPrices;
   }
 };
 
-// Add a new transaction
-export const addTransaction = async (req, res) => {
+// Test endpoint to verify API works
+export const testCoinIds = async (req, res) => {
   try {
-    const { coinId, coinName, coinSymbol, coinImage, type, quantity, pricePerCoin, date, notes } = req.body;
-    const userId = req.user.id;
+    // Test with known good IDs
+    const testIds = 'bitcoin,ethereum,dogecoin';
+    console.log('Testing coin IDs:', testIds);
+    
+    const url = `${COINGECKO_BASE_URL}/simple/price?ids=${testIds}&vs_currencies=usd`;
+    
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (compatible; CryptoPortfolioApp/1.0)',
+      'Accept': 'application/json'
+    };
 
-    // Validate required fields
-    if (!coinId || !coinName || !type || !quantity || !pricePerCoin) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    // Calculate total amount
-    const totalAmount = parseFloat(quantity) * parseFloat(pricePerCoin);
-
-    const transaction = new Transaction({
-      userId,
-      coinId,
-      coinName,
-      coinSymbol,
-      coinImage,
-      type,
-      quantity: parseFloat(quantity),
-      pricePerCoin: parseFloat(pricePerCoin),
-      totalAmount,
-      date: date ? new Date(date) : new Date(),
-      notes,
+    const response = await axios.get(url, { headers, timeout: 15000 });
+    
+    res.json({
+      success: true,
+      url: url,
+      usingFreeAPI: true,
+      data: response.data
     });
-
-    await transaction.save();
-    res.status(201).json(transaction);
   } catch (error) {
-    console.error("Add transaction error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      status: error.response?.status,
+      url: error.config?.url,
+      usingFreeAPI: true,
+      responseData: error.response?.data
+    });
   }
 };
 
-// Get user's portfolio summary with live prices
+// Get user's portfolio summary
 export const getPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
     console.log(`Fetching portfolio for user: ${userId}`);
+    console.log(`Using Free API: ${COINGECKO_BASE_URL}`);
 
-    // Get all transactions for the user
     const transactions = await Transaction.find({ userId }).sort({ date: -1 });
     console.log(`Found ${transactions.length} transactions`);
 
@@ -188,7 +223,7 @@ export const getPortfolio = async (req, res) => {
       });
     }
 
-    // Calculate holdings by grouping transactions by coinId
+    // Calculate holdings
     const holdingsMap = {};
 
     transactions.forEach((transaction) => {
@@ -213,7 +248,6 @@ export const getPortfolio = async (req, res) => {
         const currentQuantity = holdingsMap[coinId].totalQuantity;
         const sellQuantity = parseFloat(quantity);
         
-        // Calculate proportional cost basis reduction
         if (currentQuantity > 0) {
           const avgCostBasis = holdingsMap[coinId].totalCostBasis / currentQuantity;
           holdingsMap[coinId].totalCostBasis -= avgCostBasis * sellQuantity;
@@ -225,7 +259,6 @@ export const getPortfolio = async (req, res) => {
       holdingsMap[coinId].transactions.push(transaction);
     });
 
-    // Filter out holdings with zero or negative quantities
     const activeHoldings = Object.values(holdingsMap).filter((holding) => holding.totalQuantity > 0);
     console.log(`Active holdings: ${activeHoldings.length}`);
 
@@ -243,41 +276,42 @@ export const getPortfolio = async (req, res) => {
       });
     }
 
-    // Get current prices (cached) from backend
+    // Get current prices
     const coinIds = activeHoldings.map((h) => h.coinId).join(",");
-    console.log(`Fetching prices for: ${coinIds}`);
+    console.log(`Raw coin IDs from database: ${coinIds}`);
     
     const priceResponse = await getCachedPrices(coinIds);
     console.log(`Price response keys:`, Object.keys(priceResponse));
 
-    // Initialize totals
+    // Calculate portfolio values
     let totalValue = 0;
     let totalCostBasis = 0;
     let totalDayChange = 0;
 
     const enrichedHoldings = activeHoldings.map((holding) => {
-      const priceData = priceResponse[holding.coinId];
+      // Try to find price data for this coin
+      const priceData = priceResponse[holding.coinId] || 
+                       priceResponse[holding.coinId.toLowerCase()] ||
+                       null;
       
       if (!priceData) {
-        console.warn(`No price data found for ${holding.coinId}`);
+        console.warn(`No price data found for ${holding.coinId}. Available keys: ${Object.keys(priceResponse).join(', ')}`);
       }
       
       const currentPrice = parseFloat(priceData?.usd || 0);
       const dayChangePercentage = parseFloat(priceData?.usd_24h_change || 0);
 
-      // Calculate values
       const avgCost = holding.totalCostBasis / holding.totalQuantity;
       const currentValue = holding.totalQuantity * currentPrice;
       const pnl = currentValue - holding.totalCostBasis;
       const pnlPercentage = holding.totalCostBasis > 0 ? (pnl / holding.totalCostBasis) * 100 : 0;
       const dayChange = currentValue * (dayChangePercentage / 100);
 
-      // Add to totals
       totalValue += currentValue;
       totalCostBasis += holding.totalCostBasis;
       totalDayChange += dayChange;
 
-      console.log(`${holding.coinName}: price=${currentPrice}, value=${currentValue}, pnl=${pnl}`);
+      console.log(`${holding.coinName}: coinId=${holding.coinId}, price=${currentPrice}, quantity=${holding.totalQuantity}, value=${currentValue}, pnl=${pnl}`);
 
       return {
         ...holding,
@@ -291,7 +325,6 @@ export const getPortfolio = async (req, res) => {
       };
     });
 
-    // Calculate portfolio totals
     const totalPnL = totalValue - totalCostBasis;
     const totalPnLPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0;
     const totalDayChangePercentage = totalValue > 0 ? (totalDayChange / totalValue) * 100 : 0;
@@ -308,13 +341,7 @@ export const getPortfolio = async (req, res) => {
       },
     };
 
-    console.log('Portfolio summary:', {
-      totalValue: portfolioData.summary.totalValue,
-      totalCostBasis: portfolioData.summary.totalCostBasis,
-      totalPnL: portfolioData.summary.totalPnL,
-      holdingsCount: enrichedHoldings.length
-    });
-
+    console.log('Final portfolio summary:', portfolioData.summary);
     res.json(portfolioData);
   } catch (error) {
     console.error("Get portfolio error:", error);
@@ -322,15 +349,46 @@ export const getPortfolio = async (req, res) => {
   }
 };
 
-// Get current market prices - dedicated endpoint for frontend
+// Rest of the functions remain the same...
+export const addTransaction = async (req, res) => {
+  try {
+    const { coinId, coinName, coinSymbol, coinImage, type, quantity, pricePerCoin, date, notes } = req.body;
+    const userId = req.user.id;
+
+    if (!coinId || !coinName || !type || !quantity || !pricePerCoin) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const totalAmount = parseFloat(quantity) * parseFloat(pricePerCoin);
+
+    const transaction = new Transaction({
+      userId,
+      coinId,
+      coinName,
+      coinSymbol,
+      coinImage,
+      type,
+      quantity: parseFloat(quantity),
+      pricePerCoin: parseFloat(pricePerCoin),
+      totalAmount,
+      date: date ? new Date(date) : new Date(),
+      notes,
+    });
+
+    await transaction.save();
+    res.status(201).json(transaction);
+  } catch (error) {
+    console.error("Add transaction error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const getCurrentPrices = async (req, res) => {
   try {
     const { coinIds } = req.query;
-    
     if (!coinIds) {
       return res.status(400).json({ error: "coinIds parameter is required" });
     }
-
     const priceData = await getCachedPrices(coinIds);
     res.json(priceData);
   } catch (error) {
@@ -339,7 +397,6 @@ export const getCurrentPrices = async (req, res) => {
   }
 };
 
-// Get all transactions
 export const getTransactions = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -369,7 +426,6 @@ export const getTransactions = async (req, res) => {
   }
 };
 
-// Update a transaction
 export const updateTransaction = async (req, res) => {
   try {
     const { transactionId } = req.params;
@@ -406,7 +462,6 @@ export const updateTransaction = async (req, res) => {
   }
 };
 
-// Delete a transaction
 export const deleteTransaction = async (req, res) => {
   try {
     const { transactionId } = req.params;

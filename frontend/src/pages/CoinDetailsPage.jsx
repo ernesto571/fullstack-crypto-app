@@ -204,7 +204,7 @@ function CoinDetails() {
               <div  className="border-b border-solid border-gray-200 flex justify justify-between">
                 <p className="py-3 font-semibold text-gray-600 ">Community</p>
 
-                <div className="flex gap-3 mt-1 mr-3">
+                <div className=" md:mt-1 md:gap-3 lg:mt-1 lg:gap-3  mt-0 mr-3 grid md:flex bg:flex">
                     {coin.links.subreddit_url && (
                       <button onClick={() => window.open(coin.links.subreddit_url, "_blank")} className="py-1 my-2 px-2 bg-gray-200 rounded-[9px] font-semibold  hover:bg-gray-300">
                         <p className="flex"><FaReddit size={17} className="mt-1 mr-2"/> Reddit</p>
