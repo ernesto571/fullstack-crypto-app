@@ -7,7 +7,7 @@ export const signup = async(req,res) =>{
     const {fullName, email, password}= req.body
     try{
        if(!fullName || !email ||!password){
-        return res.status(400).json({ message: "All firelds are required" })
+        return res.status(400).json({ message: "All fields are required" })
 
        }
 
@@ -78,7 +78,7 @@ export const login = async(req,res) =>{
 
 
     } catch(error){
-        console.log("Error in signup controller", error.message)
+        console.log("Error in login controller", error.message)
         res.status(500).json({ message: "Internal Server Error"})
     }
 }
