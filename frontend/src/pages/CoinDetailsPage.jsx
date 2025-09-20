@@ -100,13 +100,14 @@ function CoinDetails() {
     <div className="mt-[49px]">
       <Header />
 
-      <div className="flex gap-4 items-center text-gray-700  w-[94%] ml-[3%] my-2">
+      <div className="flex  items-center text-gray-700  w-[94%] ml-[3%] my-2">
         <Link to="/cryptocurrency" className="hover:text-green-500 flex items-center font-semibold text-gray-600 ">
           Cryptocurrencies{" "}
-          <ChevronRight size={25} className="ml-[2px] pt-[5px]" />
+          <ChevronRight size={22} className="ml-1 mt-[2px]" />
+
         </Link>
 
-        <p className="text-gray-400 font-semibold truncate">{coin.name} Price</p>
+        <p className="text-gray-400 ml-1 font-semibold truncate">{coin.name} Price</p>
       </div>
 
       <nav className="flex gap-4  w-[100%] py-2 border-b border-gray-200 sticky top-0 bg-white shadow-sm z-50 lg:hidden md:gap-10">

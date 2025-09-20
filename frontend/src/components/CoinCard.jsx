@@ -124,7 +124,7 @@ function CoinCard() {
                         className="w-[30px] mr-3"
                       />
                       <div className="mr-3 block md:flex lg:flex text-[0.9rem] ">
-                      <p className="lg:mr-2 md:mr-1 mr-4 font-bold truncate max-w-[120px] sm:max-w-[180px]">
+                      <p className="lg:mr-2 md:mr-1  font-bold truncate max-w-[120px] sm:max-w-[180px]">
                         {coin.name}
                       </p>
                         <p className="font-semibold text-gray-500">
