@@ -68,8 +68,8 @@ It features secure authentication, personalized watchlists, a user profile syste
 
 #### 1. Clone the repository  
 ```bash
-git clone https://github.com/yourusername/coinradar.git
-cd coinradar
+git clone https://github.com/ernesto571/fullstack-crypto-app.git
+cd fullstack-crypto-app
 ```
 
 #### 2. Install dependencies  
