@@ -95,14 +95,12 @@ NEWS_API_KEY=your_newsapi_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-FRONTEND_URL=http://localhost:5173
+COINGECKO_API_KEY =your_coingecko_api_key
 ```
 
 **Frontend (.env):**  
 ```
 VITE_COINGECKO_API_KEY=your_coingecko_api_key
-VITE_NEWS_API_KEY=your_newsapi_key
-VITE_BACKEND_URL=http://localhost:5001
 ```
 
 ---
@@ -142,19 +140,17 @@ You can deploy the backend to **Render**, **Railway**, or **Vercel**, and host t
 coinradar/
 │
 ├── backend/
-│   ├── config/
 │   ├── controllers/
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
 │   ├── utils/
-│   └── .env
+│   └── src/
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── context/
-│   │   ├── hooks/
 │   │   ├── lib/
 │   │   ├── pages/
 │   │   ├── services/
